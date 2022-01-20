@@ -34,7 +34,8 @@ SELECT @DienTich
 
 -- 1.3 Lưu trữ câu truy vấn vào biến
 DECLARE @KhoaLonNhat INT
-SET @KhoaLonNhat = (SELECT MAX(IdNhanVien) FROM nhanvien)
+SET @KhoaLonNhat = (SELECT MAX(IdNhanVien)
+FROM nhanvien)
 -- SELECT @KhoaLonNhat
 PRINT N'Nhân viên có khóa chính lớn nhất: ' 
 + CONVERT(VARCHAR(5),@KhoaLonNhat)
@@ -42,32 +43,44 @@ PRINT N'Nhân viên có khóa chính lớn nhất: '
 -- nhất gán cho 1 Biến và in biến đó ra
 
 -- 1.4 Biến Bảng 
-DECLARE @SP_TABLE TABLE (CODE NVARCHAR(20), TSP NVARCHAR(50))
+DECLARE @SP_TABLE TABLE (CODE NVARCHAR(20),
+    TSP NVARCHAR(50))
 -- Chè dữ liệu vào biến bảng
 INSERT INTO @SP_TABLE
-SELECT MaSanPHam,TenSP
+SELECT MaSanPHam, TenSP
 FROM sanpham
 WHERE TenSP LIKE 'Dell%'
 
-SELECT * FROM @SP_TABLE
+SELECT *
+FROM @SP_TABLE
 -- Hoặc truy cập đến từng trường
-SELECT TSP FROM @SP_TABLE
+SELECT TSP
+FROM @SP_TABLE
 
 -- 1.5  CHÈN DỮ LIỆU VÀO BIẾN BẢNG
-DECLARE @SanPhamFPOLY TABLE (ID int,TenSP NVARCHAR(50),QuocGia NVARCHAR(20))
+DECLARE @SanPhamFPOLY TABLE (ID int,
+    TenSP NVARCHAR(50),
+    QuocGia NVARCHAR(20))
 -- Chèn dữ liệu vào bảng
-INSERT INTO @SanPhamFPOLY VALUES(1,N'BPHONE 5','VN')
+INSERT INTO @SanPhamFPOLY
+VALUES(1, N'BPHONE 5', 'VN')
 -- Truy xuất dữ liệu
-SELECT * FROM @SanPhamFPOLY
+SELECT *
+FROM @SanPhamFPOLY
 
 -- 1.6 Sửa dữ liệu vào biến bảng
-DECLARE @SanPhamFPOLY_Update TABLE (ID int,TenSP NVARCHAR(50),QuocGia NVARCHAR(20))
-INSERT INTO @SanPhamFPOLY_Update VALUES(1,N'BPHONE 5','VN')-- Thêm data
-SELECT * FROM @SanPhamFPOLY_Update
+DECLARE @SanPhamFPOLY_Update TABLE (ID int,
+    TenSP NVARCHAR(50),
+    QuocGia NVARCHAR(20))
+INSERT INTO @SanPhamFPOLY_Update
+VALUES(1, N'BPHONE 5', 'VN')-- Thêm data
+SELECT *
+FROM @SanPhamFPOLY_Update
 UPDATE @SanPhamFPOLY_Update
 SET QuocGia = N'Việt Nam'
 WHERE ID = 1
-SELECT * FROM @SanPhamFPOLY_Update
+SELECT *
+FROM @SanPhamFPOLY_Update
 
 -- 1.7 Begin và End
 /* T-SQL tổ chức theo từng khối lệnh
@@ -80,7 +93,7 @@ SELECT * FROM @SanPhamFPOLY_Update
    END
 */
 BEGIN
-    SELECT MaNhanVien,TenNV,LuongNV
+    SELECT MaNhanVien, TenNV, LuongNV
     FROM nhanvien
     WHERE LuongNV > 100000000
 
@@ -93,7 +106,7 @@ END
 BEGIN
     DECLARE @TenDem NVARCHAR(MAX)
     SELECT TOP 1
-    @TenDem = TenDemNV
+        @TenDem = TenDemNV
     FROM nhanvien
     WHERE TenDemNV = N'Minh'
     ORDER BY TenDemNV ASC
@@ -124,21 +137,25 @@ SELECT CAST('2022-01-15' AS DATETIME)
 -- Nếu chuyển đổi không thành công, CONVERT sẽ báo lỗi, ngược lại nó sẽ trả về giá trị chuyển đổi tương ứng.
 -- CONVERT(kieudulieu(do_dai), bieuthuc, dinh_dang)
 -- dinh_dang (không bắt buộc): là một con số chỉ định việc định dạng cho việc chuyển đổi dữ liệu từ dạng ngày sang dạng chuỗi.
-SELECT CONVERT(int,15.6) -- 15
+SELECT CONVERT(int,15.6)
+-- 15
 SELECT CONVERT(float,'9.9')
 SELECT CONVERT(datetime,'2022-01-15')
 
 -- Các định dạng trong convert 101,102.........các tham số định dạng https://www.mssqltips.com/sqlservertip/1145/date-and-time-conversions-using-sql-server/
-SELECT CONVERT(varchar,'01/15/2021',101) -- mm/dd/yyyy
-SELECT CONVERT(datetime,'2022.01.15',102) --yyy.mm.dd
-SELECT CONVERT(datetime,'15/01/2022',103) --dd/mm/yyyy
+SELECT CONVERT(varchar,'01/15/2021',101)
+-- mm/dd/yyyy
+SELECT CONVERT(datetime,'2022.01.15',102)
+--yyy.mm.dd
+SELECT CONVERT(datetime,'15/01/2022',103)
+--dd/mm/yyyy
 
 -- Ví dụ: Hiển thị danh sách ngày sinh của nhân viên 
 SELECT NgaySinh,
-CAST(NgaySinh AS varchar) AS 'Ngày sinh 1',
-CONVERT(varchar,NgaySinh,101) AS 'Ngày sinh 2',
-CONVERT(varchar,NgaySinh,102) AS 'Ngày sinh 3',
-CONVERT(varchar,NgaySinh,103) AS 'Ngày sinh 4'
+    CAST(NgaySinh AS varchar) AS 'Ngày sinh 1',
+    CONVERT(varchar,NgaySinh,101) AS 'Ngày sinh 2',
+    CONVERT(varchar,NgaySinh,102) AS 'Ngày sinh 3',
+    CONVERT(varchar,NgaySinh,103) AS 'Ngày sinh 4'
 FROM nhanvien
 
 -- 2.1 Các hàm toán học Các hàm toán học (Math) được dùng để thực hiện các phép toán số học trên các giá trị. 
@@ -188,7 +205,7 @@ SELECT PI()
 -- 12. ASIN(), ACOS(), ATAN()
 -- Các hàm này dùng để tính góc (theo đơn vị radial) của một giá trị. Lưu ý là giá trị hợp lệ đối với 
 -- ASIN() và ACOS() phải nằm trong đoạn [-1,1], nếu không sẽ phát sinh lỗi khi thực thi câu lệnh. Ví dụ:
-SELECT ASIN(1) as [ASIN(1)],ACOS(1) as [ACOS(1)],ATAN(1) as [ATAN(1)];
+SELECT ASIN(1) as [ASIN(1)], ACOS(1) as [ACOS(1)], ATAN(1) as [ATAN(1)];
 
 -- 2.2 Các hàm xử lý chuỗi làm việc với kiểu chuỗi
 /*
@@ -209,12 +226,189 @@ Sử dụng hàm CHARINDEX để định vị những ký tự phân tách.
 Sau đó, dùng hàm LEFT, RIGHT, SUBSTRING và LEN để trích ra
 những thành phần độc lập*/
 DECLARE @Names1_Table TABLE (Fullname NVARCHAR(MAX))
-INSERT INTO @Names1_Table VALUES(N'Nguyễn Tiến Hùng'),(N'Nguyễn Hữu Khoa')
+INSERT INTO @Names1_Table
+VALUES(N'Nguyễn Tiến Hùng'),
+    (N'Nguyễn Hữu Khoa')
 SELECT Fullname,
-LEN(Fullname) AS N'Độ Dài Chuỗi',
-CHARINDEX(' ',Fullname) AS 'CHARINDEX',
-LEFT(Fullname,CHARINDEX(' ',Fullname)-1) AS N'Họ',
-RIGHT(Fullname,LEN(Fullname)-CHARINDEX(' ',Fullname)) AS N'Tên'
+    LEN(Fullname) AS N'Độ Dài Chuỗi',
+    CHARINDEX(' ',Fullname) AS 'CHARINDEX',
+    LEFT(Fullname,CHARINDEX(' ',Fullname)-1) AS N'Họ',
+    RIGHT(Fullname,LEN(Fullname)-CHARINDEX(' ',Fullname)) AS N'Tên'
 FROM @Names1_Table
 -- Bài tập: Truyền vào 1 tên bất kỳ có thể phân tách được hết các thành phần bên trong tên
 -- Ví dụ: Bùi thế mạnh thì ra 3 cột BÙI - THẾ - Mạnh
+
+-- Cách 2: 
+DECLARE @Names1_Table TABLE (Fullname NVARCHAR(MAX))
+INSERT INTO @Names1_Table
+VALUES(N'Nguyễn Tiến Hùng'),
+    (N'Nguyễn Hữu Khoa')
+SELECT Fullname,
+    PARSENAME(REPLACE(Fullname,' ','.'),3) AS N'Họ',
+    PARSENAME(REPLACE(Fullname,' ','.'),2) AS N'Tên Đệm',
+    PARSENAME(REPLACE(Fullname,' ','.'),1) AS N'Tên'
+FROM @Names1_Table
+--Cách 3:
+DECLARE @Names1_Table11 TABLE (TenNV NVARCHAR(MAX))
+INSERT INTO @Names1_Table11
+VALUES(N'Nguyễn Văn Chương'),
+    (N'Tô Ngọc Hùng')
+SELECT TenNV AS N'TÊN ĐẦY ĐỦ',
+    LEFT(TenNV, CHARINDEX(' ', TenNV) -1) AS N'HỌ',
+    RTRIM(LTRIM(REPLACE(REPLACE(TenNV,SUBSTRING(TenNV , 1, CHARINDEX(' ', TenNV) - 1),''),REVERSE( LEFT( REVERSE(TenNV), CHARINDEX(' ', REVERSE(TenNV))-1 ) ),'')))as N'TÊN ĐỆM',
+    RIGHT(TenNV, CHARINDEX(' ', TenNV)) AS N'TÊN'
+FROM @Names1_Table11
+
+-- 2.3 Charindex Trả về vị trí được tìm thấy của một chuỗi trong chuỗi chỉ định, 
+-- ngoài ra có thể kiểm tra từ vị trí mong  muốn
+-- CHARINDEX ( string1, string2 ,[  start_location ] ) = 1 số nguyên
+SELECT CHARINDEX('Poly','FPT POLYTECHNIC')
+SELECT CHARINDEX('Poly','FPT POLYTECHNIC',6)
+
+-- 2.4 Substring Cắt chuỗi bắt đầu từ vị trí và độ dài muốn lấy 
+-- SUBSTRING(string,start,length)
+SELECT SUBSTRING('FPT POLYTECHNIC',5,LEN('FPT POLYTECHNIC'))
+SELECT SUBSTRING('FPT POLYTECHNIC',5,8)-- 5 là điểm bắt đầu và lấy 8 ký tự sau 5
+
+-- 2.5 Replace Hàm thay thế chuỗi theo giá trị cần thay thế và cần thay thế
+-- REPLACE(search,find,replace)
+SELECT REPLACE('0912-345-678','-','')
+SELECT REPLACE(N'NGUYỄN HOÀNG TIẾN',N'TIẾN',N'DŨNG')
+
+/* 2.6 
+REVERSE(string) Đảo ngược chuỗi truyền vào
+LOWER(string)	Biến tất cả chuỗi truyền vào thành chữ thường
+UPPER(string)	Biến tất cả chuỗi truyền vào thành chữ hoa
+SPACE(integer)	Đếm số lượng khoảng trắng trong chuỗi. 
+*/
+SELECT LOWER('SQL SERVER 2022')
+SELECT UPPER('sql server 2023')
+SELECT REVERSE('sql server 2023')
+SELECT N'HOÀNG' + ' ' + N'TIẾN'
+SELECT N'HOÀNG' + SPACE(5) + N'TIẾN'
+
+-- 2.7 Các hàm ngày tháng năm
+SELECT GETDATE()
+SELECT CONVERT(date,GETDATE())
+SELECT CONVERT(time,GETDATE())
+
+SELECT YEAR(GETDATE()) AS YEAR,
+    MONTH(GETDATE()) AS MONTH,
+    DAY(GETDATE()) AS DAY
+
+-- DATENAME: truy cập tới các thành phần liên quan ngày tháng
+SELECT DATENAME(YEAR,GETDATE()) AS YEAR,
+    DATENAME(MONTH,GETDATE()) AS MONTH,
+    DATENAME(DAY,GETDATE()) AS DAY,
+    DATENAME(WEEK,GETDATE()) AS WEEK,
+    DATENAME(DAYOFYEAR,GETDATE()) AS DAYOFYEAR,
+    DATENAME(WEEKDAY,GETDATE()) AS WEEKDAY
+-- Truyền thử ngày sinh của mình vào
+DECLARE @NGAY_SINH_CUA_TOI DATE
+SET @NGAY_SINH_CUA_TOI = '1980-07-27'
+SELECT DATENAME(YEAR,@NGAY_SINH_CUA_TOI) AS YEAR,
+    DATENAME(MONTH,@NGAY_SINH_CUA_TOI) AS MONTH,
+    DATENAME(DAY,@NGAY_SINH_CUA_TOI) AS DAY,
+    DATENAME(WEEK,@NGAY_SINH_CUA_TOI) AS WEEK,
+    DATENAME(DAYOFYEAR,@NGAY_SINH_CUA_TOI) AS DAYOFYEAR,
+    DATENAME(WEEKDAY,@NGAY_SINH_CUA_TOI) AS WEEKDAY
+
+-- 2.8 Câu điều kiện IF ELSE trong SQL
+/* Lệnh if sẽ kiểm tra một biểu thức có đúng  hay không, nếu đúng thì thực thi nội dung bên trong của IF, nếu sai thì bỏ qua.
+IF BIỂU THỨC   
+BEGIN
+    { statement_block }
+END		  */
+IF 1=1
+BEGIN
+    PRINT N'ĐÚNG'
+END
+ELSE
+BEGIN
+    PRINT N'SAI'
+END
+
+IF 1=3
+    PRINT N'ĐÚNG'
+ELSE
+    PRINT N'SAI'
+
+-- Viết 1 chương trình tính điểm Qua môn  
+DECLARE @DiemGPA_COM2034 FLOAT
+SET @DiemGPA_COM2034 = 4.9
+IF @DiemGPA_COM2034<5
+PRINT N'CHÚC MỪNG BẠN VỪA MẤT 700K'
+ELSE
+PRINT N'CHÚC MỪNG BẠN ĐÃ QUA MÔN'
+
+
+DECLARE @DiemGPA_COM20341 FLOAT
+SET @DiemGPA_COM20341 = 8.9
+IF @DiemGPA_COM20341<5
+BEGIN
+    PRINT N'CHÚC MỪNG BẠN VỪA MẤT 700K'
+END
+ELSE
+BEGIN
+    PRINT N'CHÚC MỪNG BẠN ĐÃ QUA MÔN'
+    IF @DiemGPA_COM20341<8
+    BEGIN
+        PRINT N'BẠN ĐẠT LOẠI KHÁ'
+    END
+    ELSE 
+    BEGIN
+        PRINT N'BẠN ĐẠT LOẠI ONG VÀNG'
+    END
+END
+
+/* 2.9 IF EXISTS
+IF EXISTS (CaulenhSELECT)
+Cau_lenhl | Khoi_lenhl
+[ELSE
+Cau_lenh2 | Khoi_lenh2] 
+*/
+-- Kiểm tra xem trong bảng nhân viên có nhân viên nào lương lớn hơn 50tr ko?
+IF EXISTS(
+    SELECT *
+    FROM nhanvien
+    WHERE LuongNV >= 5000000)
+    BEGIN
+    PRINT N'Có danh sách nhân viên lương > 50tr'
+    SELECT *
+    FROM nhanvien
+    WHERE LuongNV >= 5000000
+END
+ELSE
+BEGIN
+    PRINT N'KHÔNG Có danh sách nhân viên lương > 50tr'
+END
+
+/*
+ 3.0 Hàm IIF () trả về một giá trị nếu một điều kiện là TRUE hoặc một giá trị khác nếu một điều kiện là FALSE.
+IIF(condition, value_if_true, value_if_false)
+*/
+SELECT IIF(1000>900,N'ĐÚNG RỒI',N'SAI RỒI')
+
+SELECT MaNhanVien,TenNV,
+IIF(IdCuaHang=1,N'NV thuộc cửa hàng 1',IIF(IdCuaHang=2,N'NV Thuộc CH2',N'Không biết'))
+FROM nhanvien
+
+/*
+3.1 Câu lệnh CASE đi qua các điều kiện và trả về một giá trị khi điều kiện đầu tiên được đáp ứng (như câu lệnh IF-THEN-ELSE). 
+Vì vậy, một khi một điều kiện là đúng, nó sẽ ngừng đọc và trả về kết quả. 
+Nếu không có điều kiện nào đúng, nó sẽ trả về giá trị trong mệnh đề ELSE.
+Nếu không có phần ELSE và không có điều kiện nào đúng, nó sẽ trả về NULL.
+CASE
+    WHEN condition1 THEN result1
+    WHEN condition2 THEN result2
+    WHEN conditionN THEN resultN
+    ELSE result
+END;
+*/
+SELECT TenNV = 
+CASE GioiTinh
+WHEN 'Nam' THEN 'Mr. ' + TenNV
+WHEN N'Nữ' THEN 'Ms. ' + TenNV
+ELSE N'Không xác định ' + TenNV
+END
+FROM nhanvien
