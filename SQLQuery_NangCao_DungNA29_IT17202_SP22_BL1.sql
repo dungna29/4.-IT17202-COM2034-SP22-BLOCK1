@@ -370,8 +370,8 @@ Cau_lenh2 | Khoi_lenh2]
 -- Kiểm tra xem trong bảng nhân viên có nhân viên nào lương lớn hơn 50tr ko?
 IF EXISTS(
     SELECT *
-    FROM nhanvien
-    WHERE LuongNV >= 5000000)
+FROM nhanvien
+WHERE LuongNV >= 5000000)
     BEGIN
     PRINT N'Có danh sách nhân viên lương > 50tr'
     SELECT *
@@ -389,8 +389,8 @@ IIF(condition, value_if_true, value_if_false)
 */
 SELECT IIF(1000>900,N'ĐÚNG RỒI',N'SAI RỒI')
 
-SELECT MaNhanVien,TenNV,
-IIF(IdCuaHang=1,N'NV thuộc cửa hàng 1',IIF(IdCuaHang=2,N'NV Thuộc CH2',N'Không biết'))
+SELECT MaNhanVien, TenNV,
+    IIF(IdCuaHang=1,N'NV thuộc cửa hàng 1',IIF(IdCuaHang=2,N'NV Thuộc CH2',N'Không biết'))
 FROM nhanvien
 
 /*
@@ -412,3 +412,114 @@ WHEN N'Nữ' THEN 'Ms. ' + TenNV
 ELSE N'Không xác định ' + TenNV
 END
 FROM nhanvien
+-- Viết cách khác
+SELECT TenNV = 
+CASE 
+WHEN GioiTinh = 'Nam' THEN 'Mr. ' + TenNV
+WHEN GioiTinh = N'Nữ' THEN 'Ms. ' + TenNV
+ELSE N'Không xác định ' + TenNV
+END
+FROM nhanvien
+-- Tạo ra 1 cột tính thuế cho nhân viên ở cửa hàng
+-- Lương mà 0 đến 300k thì 1 mức thuế 5%, 300k đến 600k mức thuế 8%, 6 đến 10tr 10%
+-- các trường hợp còn lại là 30% thuế.
+SELECT MaNhanVien, TenNV, LuongNV,
+    Thue = (CASE
+WHEN LuongNV BETWEEN 0 AND 300000 THEN LuongNV*0.05
+WHEN LuongNV BETWEEN 300000 AND 600000 THEN LuongNV*0.08
+WHEN LuongNV BETWEEN 6000000 AND 10000000 THEN LuongNV*0.1
+ELSE LuongNV*0.3
+END)
+FROM nhanvien
+
+/*Vòng lặp WHILE (WHILE LOOP) được sử dụng nếu bạn muốn 
+chạy lặp đi lặp lại một đoạn mã khi điều kiện cho trước trả về giá trị là TRUE.*/
+DECLARE @DEM INT = 0
+WHILE @DEM < 5
+BEGIN
+    SET @DEM = @DEM + 1
+    PRINT N'MÔN CSDL NÂNG CAO QUAN TRỌNG PHẢI CHỊU KHÓ CODE'
+    PRINT N'Lần thứ ' + CONVERT(varchar,@DEM,1)
+END
+PRINT N'THỰC RA CŨNG KHÔNG KHÓ NHỈ'
+
+/*Lệnh Break (Ngắt vòng lặp)*/
+/* Lệnh Continue: Thực hiện bước lặp tiếp theo bỏ qua các lệnh trong */
+DECLARE @DEM1 INT = 0
+WHILE @DEM1 < 10
+BEGIN
+    IF @DEM1 = 5
+    BEGIN
+        SET @DEM1 = @DEM1 + 1
+        CONTINUE
+    END
+    SET @DEM1 = @DEM1 + 1
+    PRINT N'MÔN CSDL NÂNG CAO QUAN TRỌNG PHẢI CHỊU KHÓ CODE'
+    PRINT N'Lần thứ ' + CONVERT(varchar,@DEM1,1)
+END
+PRINT N'THỰC RA CŨNG KHÔNG KHÓ NHỈ'
+
+/* 3.2 Try...Catch 
+SQLServer Transact-SQL cung cấp cơ chế kiểm soát lỗi bằng TRY … CATCH
+như trong các ngôn ngữ lập trình phổ dụng hiện nay (Java, C, PHP, C#).
+Một số hàm ERROR thường dùng
+_
+ERROR_NUMBER() : Trả về mã số của lỗi dưới dạng số
+ERROR_MESSAGE() Trả lại thông báo lỗi dưới hình thức văn bản 
+ERROR_SEVERITY() Trả lại mức độ nghiêm trọng của lỗi kiểu int
+ERROR_STATE() Trả lại trạng thái của lỗi dưới dạng số
+ERROR_LINE() : Trả lại vị trí dòng lệnh đã phát sinh ra lỗi
+ERROR_PROCEDURE() Trả về tên thủ tục/Trigger gây ra lỗi
+*/
+BEGIN TRY
+    SELECT 1 + 'STRING'
+END TRY
+BEGIN CATCH
+    SELECT
+    ERROR_NUMBER() AS N'Trả về mã số của lỗi dưới dạng số',
+    ERROR_MESSAGE() AS N'Trả lại thông báo lỗi dưới hình thức văn bản'
+END CATCH
+
+BEGIN TRY
+INSERT INTO chucvu
+    (MaChucVu,TenChucVu)
+VALUES
+    ('AAA','1.5')
+END TRY
+BEGIN CATCH
+    PRINT N'BẠN ƠI KHÔNG INSERT ĐƯỢC RỒI'
+    PRINT N'THÔNG BÁO: ' +  CONVERT(varchar,ERROR_NUMBER(),1)
+    PRINT N'THÔNG BÁO: ' +  ERROR_MESSAGE()
+END CATCH
+/* 3.3 RAISERROR
+*/
+-- Có dùng RAISE...
+BEGIN TRY
+INSERT INTO chucvu
+    (IdChucVu,MaChucVu,TenChucVu)
+VALUES
+    (1,'AAA','1.5')
+END TRY
+BEGIN CATCH
+    DECLARE @erERROR_SEVERITY INT,@erERROR_MESSAGE VARCHAR(MAX),@erERROR_STATE INT
+    SELECT 
+    @erERROR_SEVERITY = ERROR_SEVERITY(),
+    @erERROR_MESSAGE = ERROR_MESSAGE(),
+    @erERROR_STATE = ERROR_STATE()
+    RAISERROR(@erERROR_MESSAGE,@erERROR_SEVERITY,@erERROR_STATE)
+END CATCH
+-- Cách không dùng
+BEGIN TRY
+    INSERT INTO chucvu
+    (IdChucVu,MaChucVu,TenChucVu)
+VALUES(1, 'AA', N'Hoàng')   
+END TRY
+BEGIN CATCH
+   DECLARE @ErMESSAGE1 VARCHAR(MAX), @ErSEVERITY1 INT, @ErSTATE1 INT
+   SELECT
+    @ErMESSAGE1 = ERROR_MESSAGE(),
+    @ErSEVERITY1 = ERROR_SEVERITY(),
+    @ErSTATE1 = ERROR_STATE()
+   PRINT N'Thông báo: ' + @ErMESSAGE1 + ' | ' + CONVERT(VARCHAR,@ErSEVERITY1,1) +
+   ' | ' + CONVERT(VARCHAR, @ErSTATE1,1)   
+END CATCH
