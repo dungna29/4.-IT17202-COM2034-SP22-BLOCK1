@@ -484,7 +484,7 @@ BEGIN TRY
 INSERT INTO chucvu
     (MaChucVu,TenChucVu)
 VALUES
-    ('AAA','1.5')
+    ('AAA', '1.5')
 END TRY
 BEGIN CATCH
     PRINT N'BẠN ƠI KHÔNG INSERT ĐƯỢC RỒI'
@@ -498,11 +498,11 @@ BEGIN TRY
 INSERT INTO chucvu
     (IdChucVu,MaChucVu,TenChucVu)
 VALUES
-    (1,'AAA','1.5')
+    (1, 'AAA', '1.5')
 END TRY
 BEGIN CATCH
     DECLARE @erERROR_SEVERITY INT,@erERROR_MESSAGE VARCHAR(MAX),@erERROR_STATE INT
-    SELECT 
+    SELECT
     @erERROR_SEVERITY = ERROR_SEVERITY(),
     @erERROR_MESSAGE = ERROR_MESSAGE(),
     @erERROR_STATE = ERROR_STATE()
@@ -565,16 +565,89 @@ tượng truyền vào) trong Database
 GO
 ALTER PROCEDURE SP_LayDanhSachNhanVien
 AS
-SELECT * FROM nhanvien WHERE LuongNV > 2000000
+SELECT *
+FROM nhanvien
+WHERE LuongNV > 2000000
 
 -- Cách gõ PROC sẽ ngắn gọn hơn cách gõ trên
-GO 
+GO
 ALTER PROC SP_LayDanhSachNamBaoHanh2022
 AS
-SELECT * FROM sanpham WHERE NamBaoHanh = 2034
+SELECT *
+FROM sanpham
+WHERE NamBaoHanh = 2034
 -- Muốn thực thi Store PROC thì dùng câu lệnh Excute
 EXECUTE SP_LayDanhSachNhanVien
 EXEC SP_LayDanhSachNamBaoHanh2022
+
+-- TRIỂN KHAI STORE PROC NÂNG CAO - GIÚP QUA MÔN, HỌC JAVA3, DỰN ÁN 1 hoặc 2
+-- Ví dụ 1: Truyền tham số vào cho Store PROC
+GO
+CREATE PROC SP_CheckSP_By_NBH_TrongLuong
+    (@NBH NUMERIC(4,0),
+    @tl float)
+AS
+SELECT *
+FROM sanpham
+WHERE NamBaoHanh = @NBH AND TrongLuongSP > @tl
+
+EXEC SP_CheckSP_By_NBH_TrongLuong @NBH = 2034,@tl =3.0
+
+-- Ví dụ 2: Viết CRUD cho bảng
+GO
+ALTER PROC SP_CRUD_DongSP
+    (@id integer,
+    @maDSP NVARCHAR(100),
+    @tenDSP NVARCHAR(100),
+    @web NVARCHAR(200),
+    @SType varchar(30))
+AS
+BEGIN
+    IF (@SType = 'SELECT')
+    BEGIN
+        SELECT *
+        FROM dongsanpham
+    END
+    IF (@SType = 'INSERT')
+    BEGIN
+        INSERT INTO dongsanpham
+            (MaDongSanPham,TenDongSanPham,WebsiteDongSanPham)
+        VALUES(@maDSP, @tenDSP, @web)
+    END
+    IF (@SType = 'DELETE')
+    BEGIN
+        DELETE FROM dongsanpham WHERE IdDongSanPham = @id
+    END
+    ELSE IF (@SType = 'UPDATE')
+    BEGIN
+        UPDATE dongsanpham SET
+        MaDongSanPham = @maDSP,
+        TenDongSanPham = @tenDSP,
+        WebsiteDongSanPham = @web
+        Where IdDongSanPham = @id
+    END
+END
+-- Các bạn viết 1 store proc cho bảng cửa hàng CRUD đầy đủ như ví dụ. 15h55 Hết giờ!
+
+EXEC SP_CRUD_DongSP @id = 0,@maDSP = 'FPOLY',
+@tenDSP = 'POLYTECHNIC',@web = 'www.fpoly.edu',@SType = 'INSERT'
+EXEC SP_CRUD_DongSP @id = 0,@maDSP = '',
+@tenDSP = '',@web = '',@SType = 'SELECT'
+
+DECLARE @myid uniqueidentifier = NEWID();
+SELECT CONVERT(CHAR(255), @myid) AS 'char';  
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  3.5 Trigger trong SQL
@@ -635,10 +708,11 @@ ALTER TRIGGER TG_Insert_CheckLuongNV ON nhanvien
 FOR INSERT
 AS
 BEGIN
-    IF(SELECT LuongNV FROM inserted) < 50000
+    IF(SELECT LuongNV
+    FROM inserted) < 50000
     BEGIN
-    PRINT N'Tiền lương tối thiểu khi insert vào phải lớn hơn 50k'
-    ROLLBACK TRANSACTION
+        PRINT N'Tiền lương tối thiểu khi insert vào phải lớn hơn 50k'
+        ROLLBACK TRANSACTION
     END
 END 
 
@@ -668,10 +742,11 @@ CREATE TRIGGER TG_Update_CheckLuongNV ON nhanvien
 FOR UPDATE
 AS
 BEGIN
-    IF(SELECT LuongNV FROM inserted) < 50000
+    IF(SELECT LuongNV
+    FROM inserted) < 50000
     BEGIN
-    PRINT N'Tiền lương tối thiểu khi update vào phải lớn hơn 50k'
-    ROLLBACK TRANSACTION
+        PRINT N'Tiền lương tối thiểu khi update vào phải lớn hơn 50k'
+        ROLLBACK TRANSACTION
     END
 END 
 
