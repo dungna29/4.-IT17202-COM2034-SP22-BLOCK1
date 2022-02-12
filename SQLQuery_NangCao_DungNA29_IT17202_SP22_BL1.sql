@@ -638,17 +638,6 @@ DECLARE @myid uniqueidentifier = NEWID();
 SELECT CONVERT(CHAR(255), @myid) AS 'char';  
 
 
-
-
-
-
-
-
-
-
-
-
-
 /*
  3.5 Trigger trong SQL
 ❑Trigger là một dạng đặc biệt của thủ tục lưu trữ  (store procedure), được thực thi một cách tự động khi có sự thay đổi dữ liệu (do tác động của
@@ -751,3 +740,165 @@ BEGIN
 END 
 
 UPDATE nhanvien SET LuongNV = 510000 WHERE MaNhanVien = 'NV01'
+
+-- Ví dụ: Xóa id hóa đơn
+GO
+CREATE TRIGGER TG_XoaIdHoaDon ON hoadon
+INSTEAD OF DELETE
+AS
+BEGIN
+    DELETE FROM hoadonchitiet Where IdHoaDon IN (SELECT IdHoaDon
+    FROM deleted)
+    DELETE FROM hoadon Where IdHoaDon IN (SELECT IdHoaDon
+    FROM deleted)
+END
+
+DELETE FROM hoadonchitiet Where IdHoaDon = 2;
+DELETE FROM hoadon Where IdHoaDon = 2;
+
+/*
+HÀM NGƯỜI DÙNG TỰ ĐỊNH NGHĨA
+❑Là một đối tượng CSDL chứa các câu lệnh SQL,
+được biên dịch sẵn và lưu trữ trong CSDL.
+❑Thực hiện một hành động như các tính toán
+phức tạp và trả về kết quả là một giá trị.
+❑Giá trị trả về có thể là:
+	❖Giá trị vô hướng
+	❖Một bảng
+SO SÁNH HÀM VỚI THỦ TỤC
+❑Tương tự như Stored Procedure
+❖Là một đối tượng CSDL chứa các câu lệnh SQL, được
+biên dịch sẵn và lưu trữ trong CSDL.
+❑Khác với Stored Procedure
+➢Các hàm luôn phải trả về một giá trị, sử dụng câu lệnh
+RETURN
+➢Hàm không có tham số đầu ra
+➢Không được chứa các câu lệnh INSERT, UPDATE, DELETE
+một bảng hoặc view đang tồn tại trong CSDL
+➢Có thể tạo bảng, bảng tạm, biến bảng và thực hiện các câu
+lệnh INSERT, UPDATE, DELETE trên các bảng, bảng tạm,
+biến bảng vừa tạo trong thân hàm
+Hàm giá trị vô hướng: Trả về giá trị đơn của mọi kiểu dữ liệu
+Hàm giá trị bảng đơn giản: Trả về bảng, là kết quả của một câu SELECT đơn.
+Hàm giá trị bảng nhiều câu lệnh: Trả về bảng là kêt quả của nhiều câu lệnh
+*/
+-- Ví dụ 1: VIết 1 hàm tính tuổi người dùng khi họ nhập năm sinh
+GO
+CREATE FUNCTION F_TinhTuoi(@NS int)
+RETURNS INT -- PHẢI SỬ DỤNG RETURNS để định nghĩa kiểu dữ liệu của hàm
+AS 
+BEGIN
+    RETURN YEAR(GETDATE()) - @NS
+END
+GO
+-- Khi gọi hàm bắt buộc bổ sung dbo. thì mới gọi đc hàm
+PRINT dbo.F_TinhTuoi(2002) 
+
+-- Ví dụ 2: Tạo 1 hàm đếm số nhân viên có trong công ty F_TongSoNhanVien
+GO
+CREATE FUNCTION F_TongSoNhanVien()
+RETURNS INT -- PHẢI SỬ DỤNG RETURNS để định nghĩa kiểu dữ liệu của hàm
+AS 
+BEGIN
+    RETURN (SELECT COUNT(MaNhanVien)
+    FROM nhanvien)
+END
+GO
+PRINT dbo.F_TongSoNhanVien() 
+-- Ví dụ 2: Tạo 1 hàm đếm số nhân viên theo giới tính, giới tính là nham số truyền vào
+-- F_DemSoNhanVienByGioiTinh
+
+GO
+CREATE FUNCTION F_DemSoNhanVienByGioiTinh(@gt NVARCHAR(10))
+RETURNS INT
+AS 
+BEGIN
+    RETURN (SELECT COUNT(MaNhanVien)
+    FROM nhanvien
+    WHERE GioiTinh = @gt)
+END
+GO
+PRINT N'Tổng nhân viên theo giới tính: ' + CONVERT(VARCHAR, dbo.F_DemSoNhanVienByGioiTinh(N'Nam'))
+
+
+-- TẠO RA 1 HÀM TRẢ VỀ 1 BẢNG
+GO
+CREATE FUNCTION F_GetAllNV()
+RETURNS TABLE
+AS RETURN SELECT *
+FROM nhanvien
+GO
+-- Khi mà hàm trả ra 1 bảng thì sẽ sử dụng select
+SELECT *
+FROM dbo.F_GetAllNV()
+
+--  Ví dụ cuối hàm: Hàm trả ra giá trị đa câu lệnh
+GO
+CREATE FUNCTION F_GetLstNV_ByGT(@gt NVARCHAR(10))
+RETURNS @TBL_NhanVien TABLE(TenNV NVARCHAR(100),
+    MaNV NVARCHAR(100),
+    GT NVARCHAR(100))
+AS
+BEGIN
+    IF(@gt IS NULL)
+    BEGIN
+        INSERT INTO @TBL_NhanVien
+            (TenNV,MaNV,GT)
+        SELECT TenNV, MaNhanVien, GioiTinh
+        FROM nhanvien
+    END
+    ELSE
+    BEGIN
+        INSERT INTO @TBL_NhanVien
+            (TenNV,MaNV,GT)
+        SELECT TenNV, MaNhanVien, GioiTinh
+        FROM nhanvien
+        WHERE GioiTinh = @gt
+    END
+    RETURN
+END
+GO
+
+SELECT * FROM dbo.F_GetLstNV_ByGT(N'Nam')
+/* Xóa/Sửa Nội Dung của một hàm chỉ cần dùng DROP/ALTER*/
+
+/*
+VIEW là gì:
+❑Che dấu và bảo mật dữ liệu
+❖Không cho phép người dùng xem toàn bộ dữ liệu
+chứa trong các bảng.
+❖Bằng cách chỉ định các cột trong View, các dữ liệu
+quan trọng chứa trong một số cột của bảng có thể
+được che dấu
+❑Hiển thị dữ liệu một cách tùy biến
+❖Với mỗi người dùng khác nhau, có thể tạo các View
+khác nhau phù hợp với nhu cầu xem thông tin của
+từng người dùng
+
+❑Lưu trữ câu lệnh truy vấn phức tạp và thường
+xuyên sử dụng.
+❑Thực thi nhanh hơn các câu lệnh truy vấn do đã
+được biên dịch sẵn
+❑Đảm bảo tính toàn vẹn dữ liệu
+❖Khi sử dụng View để cập nhật dữ liệu trong các bảng
+cơ sở, SQL Server sẽ tự động kiểm tra các ràng buộc
+toàn vẹn trên các bản
+
+❑Tên view không được trùng với tên bảng hoặc
+view đã tồn tại
+❑Câu lệnh SELECT tạo VIEW
+❖Không được chứa mệnh đề INTO, hoặc ORDER BY trừ
+khi chứa từ khóa TOP
+❑Đặt tên cột
+❖Cột chứa giá trị được tính toán từ nhiều cột khác phải
+được đặt tên
+❖Nếu cột không được đặt tên, tên cột sẽ được mặc
+định giống tên cột của bảng cơ sở
+*/
+
+GO
+CREATE VIEW View_DSNVNu
+AS
+SELECT * FROM nhanvien WHERE GioiTinh = N'Nữ'
+
+-- muốn xem view thì tiến select view như làm việc với bảng
