@@ -900,5 +900,47 @@ GO
 CREATE VIEW View_DSNVNu
 AS
 SELECT * FROM nhanvien WHERE GioiTinh = N'Nữ'
+GO
 
 -- muốn xem view thì tiến select view như làm việc với bảng
+SELECT * FROM View_DSNVNu WHERE IdCuaHang = 1
+
+/*PHÂN LOẠI VIEW
+❑VIEW chỉ đọc (read-only view)
+❖View này chỉ dùng để xem dữ liệu
+❑VIEW có thể cập nhật (updatable view)
+❖Xem dữ liệu
+❖Có thể sử dụng câu lệnh INSERT, UPDATE, DELETE để
+cập nhật dữ liệu trong các bảng cơ sở qua View
+Yêu cầu: Câu lệnh select không được chứa
+	❖Mệnh đề DISTINCT hoặc TOP
+	❖Một hàm kết tập (Aggregate function)
+	❖Một giá trị được tính toán
+	❖Mệnh đề GROUP BY và HAVING
+	❖Toán tử UNION
+	❖Nếu câu lệnh tạo View vi phạm một trong số điều
+	kiện trên. VIEW được tạo ra là VIEW chỉ đọc
+*/
+-- Luyện tập tạo view
+/*
+View 1: Tạo ra 1 View báo cáo doanh số sản phẩm bao gồm các cột thông tin sau để báo cáo cho giám đốc 
+của đại lý sấp xếp giảm dần theo Số lượng đã bán:
+[Mã Sản Phẩm] [Tên Sản Phẩm] [Mã Dòng Sản phẩm] [Tên Dòng Sản phẩm] [Số Lượng Tồn Kho] [Số Lượng Đã Bán]
+ [Số tiền lãi] 
+
+View 2:  Tạo ra 1 View báo cáo cho thanh tra của tập đoàn xuống kiểm tra gồm những cột sau và sắp 
+xếp theo tổng số lượng sản phẩm đã bán của nhân viên đó
+[Tên Cửa Hàng][Thành Phố][Địa Chỉ 1][Quốc Gia][Mã Nhân Viên] [Tên Nhân Viên] [Số điện thoại] 
+[Lương] [Mã Người Báo Cáo] [Tên người Báo Cáo][Chức danh người báo cáo]
+[Tổng số lượng sản phẩm đã bán của nhân viên đó]
+
+View 3: Sắp tới 30/4 mùng 1/5 đang có chương trình tặng quà cho những khách hàng từng mua hàng 
+tổng đơn hàng từ 15 triệu trở lên. Hãy tạo 1 View hiển thị những khách hàng nằm trong diện được 
+thưởng bao gồm các cột và sắp xếp theo tổng số tiền đã mua
+[Id Khách Hàng] [Họ và Tên Khách Hàng] [Số điện thoại] [Địa Chỉ 1] [Thành phố] 
+[Tổng số lượng hà đã mua] [Tổng số tiền đã mua]
+
+View 4: Hiển thị ra 1 View báo cáo Các hóa đơn có tình trạng chưa ship hàng cho khách được và để các trưởng phòng họp bắt các nhân viên giải trình hiển thị ra các cột như sau và sắp xếp giảm dần theo số lượng:
+[ID Hóa Đơn] [Mã Nhân Viên] [Tên Nhân Viên] [Ngày Lập Hóa Đơn] [Ngày Giao Hàng] [Tên Khách Hàng] 
+[Số ĐT Khách Hàng] [Quận] [Trạng Thái Hóa ĐƠn] [Số Lượng trên đơn]
+*/
