@@ -944,3 +944,31 @@ View 4: Hiển thị ra 1 View báo cáo Các hóa đơn có tình trạng chưa
 [ID Hóa Đơn] [Mã Nhân Viên] [Tên Nhân Viên] [Ngày Lập Hóa Đơn] [Ngày Giao Hàng] [Tên Khách Hàng] 
 [Số ĐT Khách Hàng] [Quận] [Trạng Thái Hóa ĐƠn] [Số Lượng trên đơn]
 */
+-- GIẢI BÀI TẬP 
+-- View 1:
+/*
+View 1: Tạo ra 1 View báo cáo doanh số sản phẩm bao gồm các cột thông tin sau để báo cáo cho giám đốc 
+của đại lý sấp xếp giảm dần theo Số lượng đã bán:
+[Mã Sản Phẩm] [Tên Sản Phẩm] [Mã Dòng Sản phẩm] [Tên Dòng Sản phẩm] [Số Lượng Tồn Kho] [Số Lượng Đã Bán]
+ [Số tiền lãi] 
+*/
+
+-- Chữa View 1
+CREATE VIEW VIEW1_A AS 
+SELECT dbo.sanpham.MaSanPHam AS 'Mã Sản Phẩm',
+dbo.sanpham.TenSP AS 'Tên Sản Phẩm',
+dbo.dongsanpham.MaDongSanPham AS 'Mã Dòng Sản Phẩm',
+dbo.dongsanpham.TenDongSanPham AS 'Tên Dòng Sản Phẩm',
+dbo.sanpham.SoLuongSanPhamTon AS 'Số Lượng SP tồn',
+SUM(hoadonchitiet.SoLuongDatHang) AS 'Số lượng đặt hàng',
+SUM(hoadonchitiet.SoLuongDatHang) * SUM(sanpham.GiaBanSP - sanpham.GiaNhapSP) AS 'Số tiền lãi'
+FROM hoadonchitiet
+JOIN sanpham ON hoadonchitiet.IdSanPham = sanpham.IdSanPham
+JOIN dongsanpham ON dongsanpham.IdDongSanPham = sanpham.IdDongSanPham
+GROUP BY
+dbo.sanpham.MaSanPHam,
+dbo.sanpham.TenSP,
+dbo.dongsanpham.MaDongSanPham,
+dbo.dongsanpham.TenDongSanPham,
+dbo.sanpham.SoLuongSanPhamTon
+
